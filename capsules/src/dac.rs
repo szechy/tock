@@ -12,8 +12,8 @@ impl<'a, A: DacSingle + 'a> DAC<'a, A> {
         }
     }
 
-    fn enable(&self) {
-        self.dac.enable();
+    fn enable(&self) -> bool {
+        return self.dac.enable();
     }
 
     fn set(&self, data: u16) -> bool{

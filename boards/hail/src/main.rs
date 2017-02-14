@@ -26,6 +26,14 @@ pub mod io;
 static mut spi_read_buf: [u8; 64] = [0; 64];
 static mut spi_write_buf: [u8; 64] = [0; 64];
 
+fn wait() {
+    let mut x = 0;
+
+    while (x < 100000) {
+        x = x+1;
+    }
+}
+
 unsafe fn load_processes() -> &'static mut [Option<kernel::process::Process<'static>>] {
     extern "C" {
         /// Beginning of the ROM region containing app images.
@@ -344,7 +352,46 @@ pub unsafe fn reset_handler() {
         capsules::dac::DAC<'static, sam4l::dac::Dac>,
         capsules::dac::DAC::new(&mut sam4l::dac::DAC),
         32/8);
-    sam4l::dac::DAC.enable();
+
+    sam4l::gpio::PB[14].enable();
+    sam4l::gpio::PB[14].enable_output();
+    sam4l::gpio::PB[11].enable();
+    sam4l::gpio::PB[11].enable_output();
+    sam4l::gpio::PB[12].enable();
+    sam4l::gpio::PB[12].enable_output();
+
+    sam4l::gpio::PB[14].set();
+    wait();
+    wait();
+    wait();
+    wait();
+
+    if sam4l::dac::DAC.enable() {
+        sam4l::gpio::PB[14].set();
+    }
+    else {
+        sam4l::gpio::PB[14].clear();
+    }
+    wait();
+    wait();
+    wait();
+    wait();
+
+    wait();
+    wait();
+
+
+    while true {
+
+        sam4l::dac::DAC.set(1);
+        wait();
+
+        //sam4l::dac::DAC.set(30000);
+        wait();
+
+        sam4l::dac::DAC.set(60000);
+        wait();
+    }
 
     chip.mpu().enable_mpu();
 

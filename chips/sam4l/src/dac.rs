@@ -75,6 +75,14 @@ impl DacSingle for Dac {
             // FIXME: do we need to write 1 to control register (CR) to do
             // software reset? when?
 
+            // reset dac
+            let mut cr: u32 = regs.cr.get();
+
+            cr = cr | 1;
+            regs.cr.set(cr);
+
+            regs.wpmr.set(0x0);
+
             let mut mr: u32 = regs.mr.get();
             let mut wpmr: u32 = regs.wpmr.get();
 
@@ -89,7 +97,7 @@ impl DacSingle for Dac {
             // choose the trigger source
             // This code changes TRGSEL in MR to 0b001
             // choose peripheral event. NOTE: should depend on argument
-            mr = mr | (1 << 1);
+            mr = mr | (0b111 << 1);
 
             // configure the transfer size
             // This code changes WORD in MR to 0
@@ -100,6 +108,9 @@ impl DacSingle for Dac {
             // This code changes TRGEN in MR to 0 because we use peripheral event
             mr = mr | (0 << 0);
 
+            // set trigger period
+            mr = mr | (0xff << 16);
+
             // write to mode register
             regs.mr.set(mr);
 
@@ -108,10 +119,13 @@ impl DacSingle for Dac {
             regs.wpmr.set(wpmr);
 
             // reset TXRDY bit in interrupt register
-
         }
 
-        return true;
+        if regs.mr.get() & 0xe == 0xe {
+            return true;
+        }
+
+        return false;
     }
 
     // check for the ready bit in TXRDY and set the value in CDR
