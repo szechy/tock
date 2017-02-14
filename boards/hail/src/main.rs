@@ -360,6 +360,7 @@ pub unsafe fn reset_handler() {
     sam4l::gpio::PB[12].enable();
     sam4l::gpio::PB[12].enable_output();
 
+    sam4l::gpio::PB[14].clear();
     sam4l::gpio::PB[14].set();
     wait();
     wait();
@@ -389,7 +390,8 @@ pub unsafe fn reset_handler() {
         //sam4l::dac::DAC.set(30000);
         wait();
 
-        sam4l::dac::DAC.set(60000);
+        sam4l::dac::DAC.set(1000);
+
         wait();
     }
 

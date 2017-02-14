@@ -121,7 +121,9 @@ impl DacSingle for Dac {
             // reset TXRDY bit in interrupt register
         }
 
-        if regs.mr.get() & 0xe == 0xe {
+        // after setup, mr would be 0xff0012
+
+        if regs.mr.get() == 0xff0012 {
             return true;
         }
 
